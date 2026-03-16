@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI / ML — Self-assessment</title>
+<style>
+:root {
+  --bg:#ffffff; --surface:#f7f6f2; --border:#e2e0d8;
+  --text:#1a1a18; --muted:#5f5e5a; --hint:#9c9a92;
+  --n-bg:#F1EFE8; --n-text:#444441; --n-dot:#888780;
+  --a-bg:#FAEEDA; --a-text:#633806; --a-dot:#BA7517;
+  --p-bg:#E6F1FB; --p-text:#0C447C; --p-dot:#378ADD;
+  --e-bg:#EAF3DE; --e-text:#27500A; --e-dot:#639922;
+  --m-bg:#EEEDFE; --m-text:#3C3489; --m-dot:#7F77DD;
+  --seg:#7F77DD;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans','Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px; }
+h2 { font-size:14px; font-weight:600; margin-bottom:2px; }
+.seg-tag { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:10px; background:#EEEDFE; color:#3C3489; border:0.5px solid #AFA9EC; margin-bottom:12px; }
+.layout { display:grid; grid-template-columns:1fr 280px; gap:14px; }
+@media(max-width:640px){ .layout{grid-template-columns:1fr;} }
+.web-wrap { background:var(--surface); border:0.5px solid var(--border); border-radius:12px; padding:14px; }
+canvas { display:block; width:100%; cursor:crosshair; }
+.legend { display:flex; gap:5px; flex-wrap:wrap; margin-top:10px; justify-content:center; }
+.lp { font-size:10px; font-weight:600; padding:2px 8px; border-radius:8px; border:0.5px solid transparent; }
+.side { display:flex; flex-direction:column; gap:8px; }
+.card { background:var(--surface); border:0.5px solid var(--border); border-radius:10px; padding:10px 12px; }
+.card-label { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--hint); margin-bottom:6px; }
+.dim-item { display:flex; align-items:center; gap:7px; padding:5px 8px; border-radius:7px; border:0.5px solid var(--border); background:var(--bg); cursor:pointer; margin-bottom:3px; transition:border-color .12s; }
+.dim-item:hover { border-color:#aaa; }
+.dim-item.active { border-color:var(--seg); background:#EEEDFE; }
+.dim-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dim-name { font-size:11px; flex:1; }
+.dim-lvl { font-size:9px; font-weight:600; padding:1px 6px; border-radius:6px; border:0.5px solid transparent; }
+.ev-card { display:none; }
+.ev-card.show { display:block; }
+textarea { width:100%; font-size:11px; padding:6px 8px; border:0.5px solid var(--border); border-radius:7px; background:var(--bg); color:var(--text); font-family:inherit; resize:vertical; min-height:56px; outline:none; line-height:1.5; margin-top:4px; }
+textarea:focus { border-color:var(--seg); }
+textarea::placeholder { color:var(--hint); }
+.sum-chip { font-size:11px; font-weight:600; padding:3px 10px; border-radius:8px; border:0.5px solid transparent; display:inline-block; }
+.pub-btn { width:100%; font-size:12px; font-weight:600; padding:8px; border-radius:8px; border:0.5px solid var(--border); background:var(--bg); color:var(--text); cursor:pointer; font-family:inherit; transition:all .15s; margin-top:2px; }
+.pub-btn:hover { background:#EAF3DE; color:#27500A; border-color:#97C459; }
+.pub-btn.done { background:#EAF3DE; color:#27500A; border-color:#97C459; cursor:default; }
+.hint { font-size:10px; color:var(--hint); margin-bottom:4px; }
+</style>
+</head>
+<body>
+<h2>AI / Machine Learning — self-assessment</h2>
+<div class="seg-tag">AI / ML segment · 8 dimensions</div>
+<div class="layout">
+  <div class="web-wrap">
+    <div class="hint">Click on an axis to set your maturity level</div>
+    <canvas id="c" height="320"></canvas>
+    <div class="legend">
+      <span class="lp" style="background:var(--n-bg);color:var(--n-text);border-color:var(--n-dot);">1 Novice</span>
+      <span class="lp" style="background:var(--a-bg);color:var(--a-text);border-color:var(--a-dot);">2 Apprentice</span>
+      <span class="lp" style="background:var(--p-bg);color:var(--p-text);border-color:var(--p-dot);">3 Practitioner</span>
+      <span class="lp" style="background:var(--e-bg);color:var(--e-text);border-color:var(--e-dot);">4 Expert</span>
+      <span class="lp" style="background:var(--m-bg);color:var(--m-text);border-color:var(--m-dot);">5 Master</span>
+    </div>
+  </div>
+  <div class="side">
+    <div class="card">
+      <div class="card-label">Dimensions</div>
+      <div id="dimList"></div>
+    </div>
+    <div class="card ev-card" id="evCard">
+      <div class="card-label">Evidence — <span id="evName" style="color:var(--text);font-weight:600;text-transform:none;letter-spacing:0;font-size:10px;"></span></div>
+      <textarea id="evText" placeholder="Describe a concrete example…"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-label">Overall grade</div>
+      <span class="sum-chip" id="grade" style="background:var(--n-bg);color:var(--hint);border-color:var(--n-dot);">Not started</span>
+    </div>
+    <button class="pub-btn" id="pubBtn" onclick="publish()">Publish to manager →</button>
+  </div>
+</div>
+<script>
+const DIMS=['AI Fundamentals','Data Engineering','Machine Learning','Model Evaluation','MLOps','AI in Production','Edge AI / TinyML','AI Performance & Optimization'];
+const LM=[
+  {bg:'#F1EFE8',text:'#444441',dot:'#888780',label:'Novice'},
+  {bg:'#FAEEDA',text:'#633806',dot:'#BA7517',label:'Apprentice'},
+  {bg:'#E6F1FB',text:'#0C447C',dot:'#378ADD',label:'Practitioner'},
+  {bg:'#EAF3DE',text:'#27500A',dot:'#639922',label:'Expert'},
+  {bg:'#EEEDFE',text:'#3C3489',dot:'#7F77DD',label:'Master'},
+];
+const state=DIMS.map(()=>({level:0,evidence:''}));
+let active=null,canvas,ctx,W,cx,cy,R;
+const SEG_COLOR='#7F77DD';
+
+function init(){
+  canvas=document.getElementById('c');
+  resize();
+  canvas.addEventListener('click',onClick);
+  window.addEventListener('resize',()=>{resize();draw();});
+}
+function resize(){
+  const pw=canvas.parentElement.clientWidth-28;
+  W=Math.min(pw,400);canvas.style.width=W+'px';canvas.style.height=W+'px';cx=W/2;cy=W/2;R=W*0.36;
+}
+function ang(i){return(Math.PI*2*i/DIMS.length)-Math.PI/2;}
+function draw(){
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=W*dpr;
+  ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  const rings=['rgba(136,135,128,.15)','rgba(186,117,23,.13)','rgba(55,138,221,.13)','rgba(99,153,34,.13)','rgba(127,119,221,.15)'];
+  for(let l=5;l>=1;l--){
+    const r=R*(l/5);ctx.beginPath();
+    for(let i=0;i<DIMS.length;i++){const a=ang(i);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath();ctx.fillStyle=rings[l-1];ctx.fill();ctx.strokeStyle='rgba(180,178,169,.4)';ctx.lineWidth=.5;ctx.stroke();
+  }
+  for(let i=0;i<DIMS.length;i++){
+    const a=ang(i);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*1.04*Math.cos(a),cy+R*1.04*Math.sin(a));
+    ctx.strokeStyle='rgba(180,178,169,.45)';ctx.lineWidth=.5;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
+    const lr=R*1.22;const lx=cx+lr*Math.cos(a),ly=cy+lr*Math.sin(a);
+    const words=DIMS[i].split(' ');const mid=Math.ceil(words.length/2);
+    const l1=words.slice(0,mid).join(' '),l2=words.slice(mid).join(' ');
+    ctx.fillStyle=active===i?'#534AB7':'#5f5e5a';
+    ctx.font=`${active===i?'600':'500'} ${Math.max(9,W*.026)}px system-ui`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    l2?(ctx.fillText(l1,lx,ly-7),ctx.fillText(l2,lx,ly+7)):ctx.fillText(l1,lx,ly);
+  }
+  if(state.some(s=>s.level>0)){
+    ctx.beginPath();
+    for(let i=0;i<DIMS.length;i++){const r=R*(Math.max(state[i].level,.08)/5);const a=ang(i);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath();ctx.fillStyle=SEG_COLOR+'22';ctx.fill();ctx.strokeStyle=SEG_COLOR;ctx.lineWidth=1.8;ctx.stroke();
+    for(let i=0;i<DIMS.length;i++){
+      if(!state[i].level)continue;
+      const r=R*(state[i].level/5);const a=ang(i);const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+      ctx.beginPath();ctx.arc(x,y,active===i?8:5.5,0,Math.PI*2);
+      ctx.fillStyle=LM[state[i].level-1].dot;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+    }
+  }
+  ctx.beginPath();ctx.arc(cx,cy,3,0,Math.PI*2);ctx.fillStyle='rgba(180,178,169,.6)';ctx.fill();
+}
+function onClick(e){
+  const rect=canvas.getBoundingClientRect();const sx=W/rect.width,sy=W/rect.height;
+  const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;
+  let best=-1,bestD=Infinity;
+  for(let i=0;i<DIMS.length;i++){
+    const a=ang(i),ax=Math.cos(a),ay=Math.sin(a);const dx=mx-cx,dy=my-cy;
+    const proj=dx*ax+dy*ay;const px=cx+proj*ax,py=cy+proj*ay;const d=Math.hypot(mx-px,my-py);
+    if(d<bestD&&d<44){bestD=d;best=i;}
+  }
+  if(best===-1)return;
+  const a=ang(best),ax=Math.cos(a),ay=Math.sin(a);
+  const proj=Math.max(0,Math.min(R,(mx-cx)*ax+(my-cy)*ay));
+  state[best].level=Math.max(1,Math.min(5,Math.round(proj/R*5)||1));
+  active=best;renderSide();draw();
+}
+function renderSide(){
+  const list=document.getElementById('dimList');list.innerHTML='';
+  DIMS.forEach((d,i)=>{
+    const s=state[i];const lm=s.level?LM[s.level-1]:null;
+    const el=document.createElement('div');el.className='dim-item'+(active===i?' active':'');
+    el.innerHTML=`<div class="dim-dot" style="background:${lm?lm.dot:'#ccc'}"></div><span class="dim-name">${d}</span>${lm?`<span class="dim-lvl" style="background:${lm.bg};color:${lm.text};border-color:${lm.dot}">${lm.label}</span>`:'<span class="dim-lvl" style="color:#aaa">—</span>'}`;
+    el.onclick=()=>{active=i;if(!state[i].level)state[i].level=1;renderSide();draw();};
+    list.appendChild(el);
+  });
+  const evCard=document.getElementById('evCard');
+  if(active!==null){
+    evCard.classList.add('show');
+    document.getElementById('evName').textContent=DIMS[active].split(' ').slice(0,3).join(' ')+'…';
+    const ta=document.getElementById('evText');ta.value=state[active].evidence;
+    ta.oninput=()=>{state[active].evidence=ta.value;};
+  }
+  const rated=state.filter(s=>s.level>0);const avg=rated.length?rated.reduce((s,x)=>s+x.level,0)/rated.length:0;
+  const gi=Math.min(4,Math.max(0,Math.round(avg)-1));const lm=avg>0?LM[gi]:null;
+  const g=document.getElementById('grade');
+  g.textContent=lm?`${lm.label} (${rated.length}/${DIMS.length} rated)`:'Not started';
+  g.style.background=lm?lm.bg:'#F1EFE8';g.style.color=lm?lm.text:'#9c9a92';g.style.borderColor=lm?lm.dot:'#B4B2A9';
+}
+function publish(){
+  if(state.filter(s=>s.level>0).length<DIMS.length){alert(`Please rate all ${DIMS.length} dimensions first.`);return;}
+  const btn=document.getElementById('pubBtn');btn.textContent='Published — visible to manager';btn.classList.add('done');
+}
+init();draw();renderSide();
+</script>
+</body>
+</html>
