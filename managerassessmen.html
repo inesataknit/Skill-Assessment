@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soft Skill — Manager Assessment</title>
+<style>
+:root {
+  --bg:#ffffff; --surface:#f7f6f2; --border:#e2e0d8;
+  --text:#1a1a18; --muted:#5f5e5a; --hint:#9c9a92;
+  --seg:#7F77DD;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans','Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px; }
+h2 { font-size:14px; font-weight:600; margin-bottom:4px; }
+.badges { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:12px; align-items:center; }
+.badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:10px; border:0.5px solid transparent; }
+.layout { display:grid; grid-template-columns:1fr 290px; gap:14px; }
+@media(max-width:660px){ .layout{grid-template-columns:1fr;} }
+
+.web-wrap { background:var(--surface); border:0.5px solid var(--border); border-radius:12px; padding:14px; }
+.web-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.hint { font-size:10px; color:var(--hint); line-height:1.5; }
+.reset-btn { font-size:10px; font-weight:600; padding:3px 10px; border-radius:8px; border:0.5px solid #F09595; background:#FCEBEB; color:#791F1F; cursor:pointer; font-family:inherit; }
+.reset-btn:hover { background:#F7C1C1; }
+canvas { display:block; width:100%; cursor:crosshair; }
+.legend { display:flex; gap:4px; flex-wrap:wrap; margin-top:10px; justify-content:center; }
+.lp { font-size:9px; font-weight:600; padding:2px 7px; border-radius:8px; border:0.5px solid transparent; }
+
+.side { display:flex; flex-direction:column; gap:8px; }
+.card { background:var(--surface); border:0.5px solid var(--border); border-radius:10px; padding:10px 12px; }
+.clbl { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--hint); margin-bottom:6px; }
+
+.dim-item { display:flex; align-items:center; gap:6px; padding:5px 7px; border-radius:7px; border:0.5px solid var(--border); background:var(--bg); cursor:pointer; margin-bottom:3px; transition:all .12s; }
+.dim-item:hover { border-color:#aaa; }
+.dim-item.active { border-color:var(--seg); background:#EEEDFE; }
+.dim-item.has-flag { border-left:3px solid #E24B4A; }
+.dim-item.has-gap { border-left:3px solid #BA7517; }
+.dim-item.has-flag.has-gap { border-left:3px solid #E24B4A; }
+.ddot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.dname { font-size:11px; flex:1; line-height:1.3; }
+.dlvl { font-size:9px; font-weight:600; padding:1px 6px; border-radius:6px; border:0.5px solid transparent; flex-shrink:0; }
+.dflag { font-size:8px; flex-shrink:0; }
+
+.detail-panel { display:none; }
+.detail-panel.show { display:block; }
+
+.dp-title { font-size:12px; font-weight:600; color:var(--seg); margin-bottom:8px; }
+
+.dp-section { margin-bottom:8px; }
+.dp-lbl { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--hint); margin-bottom:4px; }
+
+.level-btns { display:flex; gap:3px; flex-wrap:wrap; }
+.lvl-btn { font-size:10px; font-weight:600; padding:3px 8px; border-radius:7px; border:0.5px solid transparent; cursor:pointer; font-family:inherit; transition:all .12s; background:var(--bg); color:var(--muted); border-color:var(--border); }
+.lvl-btn:hover { border-color:#aaa; }
+.lvl-btn.sel { border-width:1.5px; }
+
+.confidence-btns { display:flex; gap:3px; }
+.conf-btn { flex:1; font-size:10px; font-weight:600; padding:4px 4px; border-radius:7px; border:0.5px solid var(--border); cursor:pointer; font-family:inherit; background:var(--bg); color:var(--muted); transition:all .12s; text-align:center; }
+.conf-btn:hover { border-color:#aaa; }
+.conf-btn.sel-high { background:#EAF3DE; color:#27500A; border-color:#97C459; }
+.conf-btn.sel-med  { background:#FAEEDA; color:#633806; border-color:#EF9F27; }
+.conf-btn.sel-low  { background:#FCEBEB; color:#791F1F; border-color:#F09595; }
+
+.flag-row { display:flex; gap:6px; }
+.flag-btn { flex:1; font-size:10px; font-weight:600; padding:5px 6px; border-radius:7px; border:0.5px solid var(--border); cursor:pointer; font-family:inherit; background:var(--bg); color:var(--muted); transition:all .12s; text-align:center; }
+.flag-btn:hover { border-color:#aaa; }
+.flag-btn.flag-active { background:#FCEBEB; color:#791F1F; border-color:#F09595; }
+.flag-btn.gap-active  { background:#FAEEDA; color:#633806; border-color:#EF9F27; }
+
+textarea { width:100%; font-size:11px; padding:6px 8px; border:0.5px solid var(--border); border-radius:7px; background:var(--bg); color:var(--text); font-family:inherit; resize:vertical; min-height:52px; outline:none; line-height:1.5; margin-top:2px; }
+textarea:focus { border-color:var(--seg); }
+textarea::placeholder { color:var(--hint); }
+
+.summary-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; }
+.sum-chip { text-align:center; padding:6px 4px; border-radius:7px; border:0.5px solid transparent; }
+.sum-num { font-size:16px; font-weight:600; }
+.sum-lbl { font-size:9px; margin-top:1px; }
+
+.grade-row { display:flex; align-items:center; gap:8px; }
+.grade { font-size:11px; font-weight:600; padding:3px 10px; border-radius:8px; border:0.5px solid transparent; }
+.grade-sub { font-size:10px; color:var(--hint); }
+
+.toast { font-size:10px; padding:5px 8px; border-radius:7px; display:none; text-align:center; margin-bottom:2px; }
+.sub-btn { width:100%; font-size:12px; font-weight:600; padding:8px; border-radius:8px; border:0.5px solid var(--border); background:var(--bg); color:var(--text); cursor:pointer; font-family:inherit; transition:all .15s; }
+.sub-btn:hover { background:#EEEDFE; color:#3C3489; border-color:#AFA9EC; }
+.sub-btn.done { background:#EEEDFE; color:#3C3489; border-color:#AFA9EC; cursor:default; }
+
+.conf-badge { display:inline-block; font-size:9px; font-weight:600; padding:1px 5px; border-radius:5px; }
+</style>
+</head>
+<body>
+
+<h2>Soft Skill — manager assessment</h2>
+<div class="badges">
+  <span class="badge" style="background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;">Manager view · Confidential</span>
+  <span class="badge" style="background:#FAEEDA;color:#633806;border-color:#EF9F27;">H1 2025</span>
+  <span class="badge" id="statusBadge" style="background:#FCEBEB;color:#791F1F;border-color:#F09595;">Draft</span>
+</div>
+
+<div class="layout">
+
+  <div class="web-wrap">
+    <div class="web-top">
+      <span class="hint">Rate each dimension based on your observations.<br>Click an axis to set the level.</span>
+      <button class="reset-btn" onclick="resetAll()">Reset all</button>
+    </div>
+    <canvas id="c" height="320"></canvas>
+    <div class="legend">
+      <span class="lp" style="background:#F1EFE8;color:#444441;border-color:#B4B2A9;">1 Novice</span>
+      <span class="lp" style="background:#FAEEDA;color:#633806;border-color:#EF9F27;">2 Apprentice</span>
+      <span class="lp" style="background:#E6F1FB;color:#0C447C;border-color:#85B7EB;">3 Practitioner</span>
+      <span class="lp" style="background:#EAF3DE;color:#27500A;border-color:#97C459;">4 Expert</span>
+      <span class="lp" style="background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;">5 Master</span>
+    </div>
+  </div>
+
+  <div class="side">
+
+    <div class="card">
+      <div class="clbl">Dimensions <span style="font-weight:400;color:var(--hint);">· click to expand</span></div>
+      <div id="dimList"></div>
+    </div>
+
+    <div class="card detail-panel" id="detailPanel">
+      <div class="dp-title" id="dpTitle"></div>
+
+      <div class="dp-section">
+        <div class="dp-lbl">Manager rating</div>
+        <div class="level-btns" id="levelBtns"></div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-lbl">Confidence in this rating</div>
+        <div class="confidence-btns">
+          <button class="conf-btn" id="conf-high" onclick="setConf('high')">High</button>
+          <button class="conf-btn" id="conf-med"  onclick="setConf('med')">Medium</button>
+          <button class="conf-btn" id="conf-low"  onclick="setConf('low')">Low</button>
+        </div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-lbl">Flags</div>
+        <div class="flag-row">
+          <button class="flag-btn" id="flagDiscuss" onclick="toggleFlag('discuss')">Flag for discussion</button>
+          <button class="flag-btn" id="flagGap"     onclick="toggleFlag('gap')">Critical gap</button>
+        </div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-lbl">Observation notes</div>
+        <textarea id="obsText" placeholder="Note specific behaviours observed, peer input, or context that informs this rating…"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="clbl">Assessment summary</div>
+      <div class="summary-grid">
+        <div class="sum-chip" style="background:#FCEBEB;border-color:#F09595;">
+          <div class="sum-num" style="color:#791F1F;" id="sumFlags">0</div>
+          <div class="sum-lbl" style="color:#A32D2D;">Discussion flags</div>
+        </div>
+        <div class="sum-chip" style="background:#FAEEDA;border-color:#EF9F27;">
+          <div class="sum-num" style="color:#633806;" id="sumGaps">0</div>
+          <div class="sum-lbl" style="color:#854F0B;">Critical gaps</div>
+        </div>
+        <div class="sum-chip" style="background:#E6F1FB;border-color:#85B7EB;">
+          <div class="sum-num" style="color:#0C447C;" id="sumRated">0/7</div>
+          <div class="sum-lbl" style="color:#185FA5;">Rated</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;">
+        <div class="clbl">Overall grade</div>
+        <div class="grade-row">
+          <span class="grade" id="grade" style="background:#F1EFE8;color:#9c9a92;border-color:#B4B2A9;">Not started</span>
+          <span class="grade-sub" id="gradeSub"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <button class="sub-btn" id="subBtn" onclick="submitAssessment()">Submit assessment →</button>
+
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='competence_softskill_manager_v1';
+const EMP_KEY='competence_softskill_v1';
+
+const DIMS=[
+  'Communication & Facilitation',
+  'Collaboration & Conflict Management',
+  'Problem Solving & Decision Making',
+  'Self-Leadership & Adaptability',
+  'Stakeholder & Customer Focus',
+  'Mentoring & Leadership',
+  'Innovation Mindset & Creative Thinking',
+];
+
+const LM=[
+  {bg:'#F1EFE8',text:'#444441',dot:'#888780',label:'Novice'},
+  {bg:'#FAEEDA',text:'#633806',dot:'#BA7517',label:'Apprentice'},
+  {bg:'#E6F1FB',text:'#0C447C',dot:'#378ADD',label:'Practitioner'},
+  {bg:'#EAF3DE',text:'#27500A',dot:'#639922',label:'Expert'},
+  {bg:'#EEEDFE',text:'#3C3489',dot:'#7F77DD',label:'Master'},
+];
+
+const SEG='#7F77DD';
+let state, active=null, canvas, ctx, W, cx, cy, R;
+
+function emptyDim(){ return {level:0, confidence:null, flagDiscuss:false, flagGap:false, notes:''}; }
+
+function load(){
+  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) return JSON.parse(r); }catch(e){}
+  return DIMS.map(()=>emptyDim());
+}
+function save(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){} }
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  if(type==='red'){ t.style.background='#FCEBEB'; t.style.color='#791F1F'; t.style.border='0.5px solid #F09595'; }
+  else{ t.style.background='#EAF3DE'; t.style.color='#27500A'; t.style.border='0.5px solid #97C459'; }
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(()=>t.style.display='none',2500);
+}
+
+function resetAll(){
+  if(!confirm('Reset all manager ratings? This cannot be undone.')) return;
+  state=DIMS.map(()=>emptyDim());
+  active=null; save();
+  document.getElementById('subBtn').textContent='Submit assessment →';
+  document.getElementById('subBtn').classList.remove('done');
+  document.getElementById('statusBadge').textContent='Draft';
+  document.getElementById('statusBadge').style.cssText='background:#FCEBEB;color:#791F1F;border-color:#F09595;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;border-width:0.5px;border-style:solid;';
+  document.getElementById('detailPanel').classList.remove('show');
+  renderSide(); draw(); updateSummary();
+  showToast('All ratings reset','red');
+}
+
+function init(){
+  state=load();
+  canvas=document.getElementById('c');
+  resize();
+  canvas.addEventListener('click',onClick);
+  window.addEventListener('resize',()=>{ resize(); draw(); });
+}
+function resize(){
+  const pw=canvas.parentElement.clientWidth-28;
+  W=Math.min(pw,400);
+  canvas.style.width=W+'px'; canvas.style.height=W+'px';
+  cx=W/2; cy=W/2; R=W*.36;
+}
+function ang(i){ return (Math.PI*2*i/DIMS.length)-Math.PI/2; }
+
+function draw(){
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr; canvas.height=W*dpr;
+  ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const rings=['rgba(136,135,128,.15)','rgba(186,117,23,.13)','rgba(55,138,221,.13)','rgba(99,153,34,.13)','rgba(127,119,221,.15)'];
+  for(let l=5;l>=1;l--){
+    const r=R*(l/5); ctx.beginPath();
+    for(let i=0;i<DIMS.length;i++){
+      const a=ang(i);
+      i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    }
+    ctx.closePath(); ctx.fillStyle=rings[l-1]; ctx.fill();
+    ctx.strokeStyle='rgba(180,178,169,.4)'; ctx.lineWidth=.5; ctx.stroke();
+  }
+  for(let i=0;i<DIMS.length;i++){
+    const a=ang(i);
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+R*1.04*Math.cos(a),cy+R*1.04*Math.sin(a));
+    ctx.strokeStyle='rgba(180,178,169,.45)'; ctx.lineWidth=.5;
+    ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+    const lr=R*1.22;
+    const lx=cx+lr*Math.cos(a),ly=cy+lr*Math.sin(a);
+    const words=DIMS[i].split(' ');
+    const mid=Math.ceil(words.length/2);
+    const l1=words.slice(0,mid).join(' '),l2=words.slice(mid).join(' ');
+    ctx.fillStyle=active===i?'#534AB7':'#5f5e5a';
+    ctx.font=`${active===i?'600':'500'} ${Math.max(9,W*.026)}px system-ui`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    l2?(ctx.fillText(l1,lx,ly-7),ctx.fillText(l2,lx,ly+7)):ctx.fillText(l1,lx,ly);
+    if(state[i]&&state[i].level>0){
+      const lm=LM[state[i].level-1];
+      ctx.font=`700 ${Math.max(8,W*.02)}px system-ui`;
+      ctx.fillStyle=lm.dot;
+      ctx.fillText(lm.label,lx,l2?ly+21:ly+15);
+    }
+    if(state[i]&&(state[i].flagDiscuss||state[i].flagGap)){
+      const fx=cx+(R*1.04+8)*Math.cos(a),fy=cy+(R*1.04+8)*Math.sin(a);
+      ctx.beginPath(); ctx.arc(fx,fy,4,0,Math.PI*2);
+      ctx.fillStyle=state[i].flagGap?'#BA7517':'#E24B4A';
+      ctx.fill();
+    }
+  }
+  if(state.some(s=>s.level>0)){
+    ctx.beginPath();
+    for(let i=0;i<DIMS.length;i++){
+      const r=R*(Math.max(state[i].level,.08)/5);
+      const a=ang(i);
+      i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    }
+    ctx.closePath();
+    ctx.fillStyle=SEG+'22'; ctx.fill();
+    ctx.strokeStyle=SEG; ctx.lineWidth=1.8; ctx.stroke();
+    for(let i=0;i<DIMS.length;i++){
+      if(!state[i].level) continue;
+      const r=R*(state[i].level/5);
+      const a=ang(i);
+      const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+      ctx.beginPath(); ctx.arc(x,y,active===i?8:5.5,0,Math.PI*2);
+      ctx.fillStyle=LM[state[i].level-1].dot; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+  }
+  ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2);
+  ctx.fillStyle='rgba(180,178,169,.6)'; ctx.fill();
+}
+
+function onClick(e){
+  const rect=canvas.getBoundingClientRect();
+  const sx=W/rect.width,sy=W/rect.height;
+  const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;
+  let best=-1,bestD=Infinity;
+  for(let i=0;i<DIMS.length;i++){
+    const a=ang(i),ax=Math.cos(a),ay=Math.sin(a);
+    const dx=mx-cx,dy=my-cy;
+    const proj=dx*ax+dy*ay;
+    const px=cx+proj*ax,py=cy+proj*ay;
+    const d=Math.hypot(mx-px,my-py);
+    if(d<bestD&&d<44){bestD=d;best=i;}
+  }
+  if(best===-1) return;
+  const a=ang(best),ax=Math.cos(a),ay=Math.sin(a);
+  const proj=Math.max(0,Math.min(R,(mx-cx)*ax+(my-cy)*ay));
+  const newLevel=Math.max(1,Math.min(5,Math.round(proj/R*5)||1));
+  state[best].level=newLevel;
+  active=best;
+  save(); renderSide(); renderDetail(); draw(); updateSummary();
+  showToast(`${DIMS[best].split(' ')[0]} → ${LM[newLevel-1].label}`,'green');
+}
+
+function renderSide(){
+  const list=document.getElementById('dimList');
+  list.innerHTML='';
+  DIMS.forEach((d,i)=>{
+    const s=state[i];
+    const lm=s.level?LM[s.level-1]:null;
+    const el=document.createElement('div');
+    let cls='dim-item'+(active===i?' active':'');
+    if(s.flagDiscuss) cls+=' has-flag';
+    if(s.flagGap) cls+=' has-gap';
+    el.className=cls;
+    const flags=[];
+    if(s.flagDiscuss) flags.push('<span class="dflag" style="color:#E24B4A;" title="Flagged for discussion">●</span>');
+    if(s.flagGap)     flags.push('<span class="dflag" style="color:#BA7517;" title="Critical gap">▲</span>');
+    const confBadge=s.confidence?`<span class="conf-badge" style="background:${s.confidence==='high'?'#EAF3DE':s.confidence==='med'?'#FAEEDA':'#FCEBEB'};color:${s.confidence==='high'?'#27500A':s.confidence==='med'?'#633806':'#791F1F'}">${s.confidence==='high'?'H':s.confidence==='med'?'M':'L'}</span>`:'';
+    el.innerHTML=`
+      <div class="ddot" style="background:${lm?lm.dot:'#ccc'}"></div>
+      <span class="dname">${d}</span>
+      ${flags.join('')}
+      ${confBadge}
+      ${lm?`<span class="dlvl" style="background:${lm.bg};color:${lm.text};border-color:${lm.dot}">${lm.label}</span>`:'<span class="dlvl" style="color:#aaa">—</span>'}
+    `;
+    el.onclick=()=>{ active=i; renderDetail(); renderSide(); draw(); };
+    list.appendChild(el);
+  });
+}
+
+function renderDetail(){
+  if(active===null){ document.getElementById('detailPanel').classList.remove('show'); return; }
+  document.getElementById('detailPanel').classList.add('show');
+  const s=state[active];
+  document.getElementById('dpTitle').textContent=DIMS[active];
+
+  const lb=document.getElementById('levelBtns');
+  lb.innerHTML='';
+  LM.forEach((lm,i)=>{
+    const btn=document.createElement('button');
+    btn.className='lvl-btn'+(s.level===i+1?' sel':'');
+    btn.textContent=lm.label;
+    if(s.level===i+1){ btn.style.background=lm.bg; btn.style.color=lm.text; btn.style.borderColor=lm.dot; }
+    btn.onclick=()=>{ state[active].level=i+1; save(); renderSide(); renderDetail(); draw(); updateSummary(); showToast(`${DIMS[active].split(' ')[0]} → ${lm.label}`,'green'); };
+    lb.appendChild(btn);
+  });
+
+  ['high','med','low'].forEach(c=>{
+    const btn=document.getElementById('conf-'+c);
+    btn.className='conf-btn';
+    if(s.confidence===c) btn.classList.add('sel-'+c);
+  });
+
+  document.getElementById('flagDiscuss').className='flag-btn'+(s.flagDiscuss?' flag-active':'');
+  document.getElementById('flagGap').className='flag-btn'+(s.flagGap?' gap-active':'');
+
+  const ta=document.getElementById('obsText');
+  ta.value=s.notes;
+  ta.oninput=()=>{ state[active].notes=ta.value; save(); };
+}
+
+function setConf(val){
+  if(active===null) return;
+  state[active].confidence=state[active].confidence===val?null:val;
+  save(); renderDetail(); renderSide();
+}
+
+function toggleFlag(type){
+  if(active===null) return;
+  if(type==='discuss') state[active].flagDiscuss=!state[active].flagDiscuss;
+  else state[active].flagGap=!state[active].flagGap;
+  save(); renderDetail(); renderSide(); draw();
+}
+
+function updateSummary(){
+  const rated=state.filter(s=>s.level>0).length;
+  const flags=state.filter(s=>s.flagDiscuss).length;
+  const gaps=state.filter(s=>s.flagGap).length;
+  document.getElementById('sumFlags').textContent=flags;
+  document.getElementById('sumGaps').textContent=gaps;
+  document.getElementById('sumRated').textContent=`${rated}/7`;
+  const avg=rated?state.filter(s=>s.level>0).reduce((a,s)=>a+s.level,0)/rated:0;
+  const gi=Math.min(4,Math.max(0,Math.round(avg)-1));
+  const lm=avg>0?LM[gi]:null;
+  const g=document.getElementById('grade');
+  g.textContent=lm?lm.label:'Not started';
+  g.style.background=lm?lm.bg:'#F1EFE8';
+  g.style.color=lm?lm.text:'#9c9a92';
+  g.style.borderColor=lm?lm.dot:'#B4B2A9';
+  document.getElementById('gradeSub').textContent=rated>0?`${rated} of 7 rated`:'';
+}
+
+function submitAssessment(){
+  const rated=state.filter(s=>s.level>0).length;
+  if(rated<DIMS.length){ showToast(`${DIMS.length-rated} dimension(s) still unrated`,'red'); return; }
+  document.getElementById('subBtn').textContent='Assessment submitted';
+  document.getElementById('subBtn').classList.add('done');
+  const sb=document.getElementById('statusBadge');
+  sb.textContent='Submitted';
+  sb.style.background='#EEEDFE'; sb.style.color='#3C3489'; sb.style.borderColor='#AFA9EC';
+  save();
+  showToast('Manager assessment saved','green');
+}
+
+init(); draw(); renderSide(); updateSummary();
+</script>
+</body>
+</html>
