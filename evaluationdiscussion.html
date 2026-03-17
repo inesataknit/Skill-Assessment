@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soft Skill — Evaluation Discussion</title>
+<style>
+:root {
+  --bg:#ffffff; --surface:#f7f6f2; --border:#e2e0d8;
+  --text:#1a1a18; --muted:#5f5e5a; --hint:#9c9a92;
+  --emp:#1D9E75; --mgr:#7F77DD; --agreed:#E24B4A;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans','Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px; }
+h2 { font-size:14px; font-weight:600; margin-bottom:4px; }
+.badges { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px; align-items:center; }
+.badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:10px; border:0.5px solid transparent; }
+
+.legend-bar { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; align-items:center; }
+.leg-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
+.leg-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+.leg-line { width:24px; height:3px; border-radius:2px; flex-shrink:0; }
+
+.top-layout { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px; }
+@media(max-width:600px){ .top-layout{grid-template-columns:1fr;} }
+
+.web-card { background:var(--surface); border:0.5px solid var(--border); border-radius:12px; padding:12px; }
+.web-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+canvas { display:block; width:100%; }
+
+.gap-section { margin-bottom:14px; }
+.sec-title { font-size:11px; font-weight:600; color:var(--text); margin-bottom:8px; }
+.gap-table { width:100%; border-collapse:collapse; }
+.gap-table th { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--hint); padding:4px 8px; text-align:left; border-bottom:0.5px solid var(--border); }
+.gap-table td { font-size:11px; padding:6px 8px; border-bottom:0.5px solid #f0ede6; vertical-align:middle; }
+.gap-table tr:last-child td { border-bottom:none; }
+.gap-table tr:hover td { background:var(--surface); }
+
+.pill { font-size:9px; font-weight:600; padding:2px 7px; border-radius:8px; border:0.5px solid transparent; white-space:nowrap; }
+.gap-pill { background:#FCEBEB; color:#791F1F; border-color:#F09595; }
+.agree-pill { background:#EAF3DE; color:#27500A; border-color:#97C459; }
+.close-pill { background:#FAEEDA; color:#633806; border-color:#EF9F27; }
+.flag-pill { background:#EEEDFE; color:#3C3489; border-color:#AFA9EC; }
+.crit-pill { background:#FCEBEB; color:#791F1F; border-color:#F09595; }
+
+.agreed-section { margin-bottom:14px; }
+.agreed-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:10px; }
+@media(max-width:500px){ .agreed-grid{grid-template-columns:repeat(3,1fr);} }
+.agreed-dim { background:var(--surface); border:0.5px solid var(--border); border-radius:8px; padding:6px 6px 8px; text-align:center; cursor:pointer; transition:all .15s; }
+.agreed-dim:hover { border-color:#aaa; }
+.agreed-dim.selected { border-color:#E24B4A; border-width:1.5px; }
+.ad-name { font-size:9px; color:var(--muted); line-height:1.3; margin-bottom:5px; }
+.ad-btns { display:flex; flex-direction:column; gap:2px; }
+.ad-btn { font-size:8px; font-weight:600; padding:2px 3px; border-radius:4px; border:0.5px solid transparent; cursor:pointer; font-family:inherit; transition:all .1s; background:var(--bg); color:var(--hint); border-color:var(--border); }
+.ad-btn:hover { border-color:#aaa; }
+.ad-btn.sel { border-width:1px; }
+
+.notes-area { background:var(--surface); border:0.5px solid var(--border); border-radius:10px; padding:12px; }
+.notes-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:500px){ .notes-grid{grid-template-columns:1fr;} }
+.notes-col-title { font-size:10px; font-weight:600; color:var(--muted); margin-bottom:6px; }
+.notes-item { font-size:10px; color:var(--muted); padding:5px 8px; border-radius:6px; background:var(--bg); border:0.5px solid var(--border); margin-bottom:4px; line-height:1.5; }
+.notes-item strong { color:var(--text); font-weight:600; }
+
+textarea { width:100%; font-size:11px; padding:6px 8px; border:0.5px solid var(--border); border-radius:7px; background:var(--bg); color:var(--text); font-family:inherit; resize:vertical; min-height:52px; outline:none; line-height:1.5; }
+textarea:focus { border-color:#E24B4A; }
+textarea::placeholder { color:var(--hint); }
+
+.save-btn { font-size:11px; font-weight:600; padding:7px 16px; border-radius:8px; border:0.5px solid #97C459; background:#EAF3DE; color:#27500A; cursor:pointer; font-family:inherit; transition:all .15s; }
+.save-btn:hover { background:#C0DD97; }
+
+.no-data { background:var(--surface); border:0.5px dashed var(--border); border-radius:10px; padding:20px; text-align:center; font-size:12px; color:var(--hint); }
+.toast { font-size:10px; padding:5px 8px; border-radius:7px; display:none; text-align:center; margin-bottom:6px; }
+</style>
+</head>
+<body>
+
+<h2>Soft Skill — evaluation discussion</h2>
+<div class="badges">
+  <span class="badge" style="background:#E6F1FB;color:#0C447C;border-color:#85B7EB;">Evaluation discussion · H1 2025</span>
+  <span class="badge" style="background:#FCEBEB;color:#791F1F;border-color:#F09595;" id="statusBadge">In progress</span>
+  <button style="margin-left:auto;font-size:10px;font-weight:600;padding:3px 10px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-family:inherit;" onclick="loadAll()">Refresh data</button>
+</div>
+
+<div id="noDataMsg" class="no-data" style="display:none;">
+  No assessment data found. Make sure both the employee and manager have completed and saved their assessments in the same browser, then click Refresh data.
+</div>
+
+<div id="mainContent">
+
+  <div class="legend-bar">
+    <span class="leg-item"><span class="leg-line" style="background:#1D9E75;"></span>Employee self-assessment</span>
+    <span class="leg-item"><span class="leg-line" style="background:#7F77DD;"></span>Manager assessment</span>
+    <span class="leg-item"><span class="leg-line" style="background:#E24B4A;border:1.5px dashed #E24B4A;background:none;height:0;border-top:2px dashed #E24B4A;"></span>Agreed (to be set)</span>
+    <span class="leg-item"><span class="leg-dot" style="background:#E24B4A;"></span>Gap ≥ 2 levels</span>
+    <span class="leg-item"><span class="leg-dot" style="background:#BA7517;"></span>Gap = 1 level</span>
+  </div>
+
+  <div class="top-layout">
+    <div class="web-card">
+      <div class="web-label" style="color:#1D9E75;">Employee</div>
+      <canvas id="cEmp" height="200"></canvas>
+    </div>
+    <div class="web-card">
+      <div class="web-label" style="color:#7F77DD;">Manager</div>
+      <canvas id="cMgr" height="200"></canvas>
+    </div>
+    <div class="web-card">
+      <div class="web-label" style="color:#E24B4A;">Overlay — gaps</div>
+      <canvas id="cOver" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="gap-section">
+    <div class="sec-title">Gap analysis</div>
+    <table class="gap-table" id="gapTable">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Employee</th>
+          <th>Manager</th>
+          <th>Difference</th>
+          <th>Status</th>
+          <th>Manager flags</th>
+        </tr>
+      </thead>
+      <tbody id="gapBody"></tbody>
+    </table>
+  </div>
+
+  <div class="agreed-section">
+    <div class="sec-title">Set agreed ratings — click a dimension then choose the agreed level</div>
+    <div class="agreed-grid" id="agreedGrid"></div>
+  </div>
+
+  <div class="notes-area">
+    <div class="notes-grid">
+      <div>
+        <div class="notes-col-title">Employee evidence notes</div>
+        <div id="empNotes"></div>
+      </div>
+      <div>
+        <div class="notes-col-title">Manager observation notes</div>
+        <div id="mgrNotes"></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;">Discussion notes (shared)</div>
+      <textarea id="discussNotes" placeholder="Document key discussion points, perception differences, and agreed development direction…"></textarea>
+    </div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+      <div class="toast" id="toast" style="flex:1;"></div>
+      <button class="save-btn" onclick="saveAll()">Save discussion notes →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const EMP_KEY ='competence_softskill_v1';
+const MGR_KEY ='competence_softskill_manager_v1';
+const DISC_KEY='competence_softskill_discussion_v1';
+
+const DIMS=[
+  'Communication & Facilitation',
+  'Collaboration & Conflict Management',
+  'Problem Solving & Decision Making',
+  'Self-Leadership & Adaptability',
+  'Stakeholder & Customer Focus',
+  'Mentoring & Leadership',
+  'Innovation Mindset & Creative Thinking',
+];
+
+const LM=[
+  {bg:'#F1EFE8',text:'#444441',dot:'#888780',label:'Novice'},
+  {bg:'#FAEEDA',text:'#633806',dot:'#BA7517',label:'Apprentice'},
+  {bg:'#E6F1FB',text:'#0C447C',dot:'#378ADD',label:'Practitioner'},
+  {bg:'#EAF3DE',text:'#27500A',dot:'#639922',label:'Expert'},
+  {bg:'#EEEDFE',text:'#3C3489',dot:'#7F77DD',label:'Master'},
+];
+
+let empData=null, mgrData=null, discData=null;
+let activeAgreed=null;
+
+function loadAll(){
+  try{ const r=localStorage.getItem(EMP_KEY); empData=r?JSON.parse(r):null; }catch(e){ empData=null; }
+  try{ const r=localStorage.getItem(MGR_KEY); mgrData=r?JSON.parse(r):null; }catch(e){ mgrData=null; }
+  try{ const r=localStorage.getItem(DISC_KEY); discData=r?JSON.parse(r):null; }catch(e){ discData=null; }
+
+  if(!discData){
+    discData={ agreed:DIMS.map(()=>0), notes:'' };
+  }
+
+  const hasData=empData&&mgrData;
+  document.getElementById('noDataMsg').style.display=hasData?'none':'block';
+  document.getElementById('mainContent').style.display=hasData?'block':'none';
+
+  if(hasData){
+    drawWeb('cEmp', empData.map(d=>d.level||0), '#1D9E75');
+    drawWeb('cMgr', mgrData.map(d=>d.level||0), '#7F77DD');
+    drawOverlay();
+    renderGapTable();
+    renderAgreedGrid();
+    renderNotes();
+    document.getElementById('discussNotes').value=discData.notes||'';
+  }
+}
+
+function ang(i,n){ return (Math.PI*2*i/n)-Math.PI/2; }
+
+function drawWeb(id, levels, color){
+  const canvas=document.getElementById(id);
+  const dpr=window.devicePixelRatio||1;
+  const pw=canvas.parentElement.clientWidth-24;
+  const W=Math.min(pw,220);
+  canvas.style.width=W+'px'; canvas.style.height=W+'px';
+  canvas.width=W*dpr; canvas.height=W*dpr;
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const cx=W/2,cy=W/2,R=W*.36;
+  const n=DIMS.length;
+
+  const rings=['rgba(136,135,128,.12)','rgba(186,117,23,.1)','rgba(55,138,221,.1)','rgba(99,153,34,.1)','rgba(127,119,221,.12)'];
+  for(let l=5;l>=1;l--){
+    const r=R*(l/5); ctx.beginPath();
+    for(let i=0;i<n;i++){const a=ang(i,n);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath(); ctx.fillStyle=rings[l-1]; ctx.fill();
+    ctx.strokeStyle='rgba(180,178,169,.35)'; ctx.lineWidth=.5; ctx.stroke();
+  }
+  for(let i=0;i<n;i++){
+    const a=ang(i,n);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*1.02*Math.cos(a),cy+R*1.02*Math.sin(a));
+    ctx.strokeStyle='rgba(180,178,169,.4)'; ctx.lineWidth=.5; ctx.setLineDash([2,3]); ctx.stroke(); ctx.setLineDash([]);
+    const lr=R*1.2; const lx=cx+lr*Math.cos(a),ly=cy+lr*Math.sin(a);
+    const words=DIMS[i].split(' '); const mid=Math.ceil(words.length/2);
+    const l1=words.slice(0,mid).join(' '),l2=words.slice(mid).join(' ');
+    ctx.fillStyle='#888780';
+    ctx.font=`500 ${Math.max(7,W*.028)}px system-ui`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    l2?(ctx.fillText(l1,lx,ly-5),ctx.fillText(l2,lx,ly+5)):ctx.fillText(l1,lx,ly);
+  }
+  if(levels.some(l=>l>0)){
+    ctx.beginPath();
+    for(let i=0;i<n;i++){const r=R*(Math.max(levels[i],.08)/5);const a=ang(i,n);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath(); ctx.fillStyle=color+'22'; ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke();
+    for(let i=0;i<n;i++){
+      if(!levels[i]) continue;
+      const r=R*(levels[i]/5); const a=ang(i,n);
+      const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+      ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+      ctx.fillStyle=color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.2; ctx.stroke();
+    }
+  }
+  ctx.beginPath(); ctx.arc(cx,cy,2.5,0,Math.PI*2); ctx.fillStyle='rgba(180,178,169,.6)'; ctx.fill();
+}
+
+function drawOverlay(){
+  const canvas=document.getElementById('cOver');
+  const dpr=window.devicePixelRatio||1;
+  const pw=canvas.parentElement.clientWidth-24;
+  const W=Math.min(pw,220);
+  canvas.style.width=W+'px'; canvas.style.height=W+'px';
+  canvas.width=W*dpr; canvas.height=W*dpr;
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const cx=W/2,cy=W/2,R=W*.36;
+  const n=DIMS.length;
+
+  const rings=['rgba(136,135,128,.1)','rgba(186,117,23,.08)','rgba(55,138,221,.08)','rgba(99,153,34,.08)','rgba(127,119,221,.1)'];
+  for(let l=5;l>=1;l--){
+    const r=R*(l/5); ctx.beginPath();
+    for(let i=0;i<n;i++){const a=ang(i,n);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath(); ctx.fillStyle=rings[l-1]; ctx.fill();
+    ctx.strokeStyle='rgba(180,178,169,.3)'; ctx.lineWidth=.5; ctx.stroke();
+  }
+  for(let i=0;i<n;i++){
+    const a=ang(i,n);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*1.02*Math.cos(a),cy+R*1.02*Math.sin(a));
+    ctx.strokeStyle='rgba(180,178,169,.35)'; ctx.lineWidth=.5; ctx.setLineDash([2,3]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  const empLevels=empData.map(d=>d.level||0);
+  const mgrLevels=mgrData.map(d=>d.level||0);
+  const agreedLevels=discData.agreed;
+
+  [
+    {levels:empLevels, color:'#1D9E75', w:1.5},
+    {levels:mgrLevels, color:'#7F77DD', w:1.5},
+  ].forEach(({levels,color,w})=>{
+    if(!levels.some(l=>l>0)) return;
+    ctx.beginPath();
+    for(let i=0;i<n;i++){const r=R*(Math.max(levels[i],.08)/5);const a=ang(i,n);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath(); ctx.fillStyle=color+'18'; ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=w; ctx.stroke();
+  });
+
+  if(agreedLevels.some(l=>l>0)){
+    ctx.beginPath();
+    for(let i=0;i<n;i++){const r=R*(Math.max(agreedLevels[i],.08)/5);const a=ang(i,n);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath(); ctx.strokeStyle='#E24B4A'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  for(let i=0;i<n;i++){
+    const diff=Math.abs((empLevels[i]||0)-(mgrLevels[i]||0));
+    if(diff===0) continue;
+    const ea=ang(i,n);
+    const re=R*(Math.max(empLevels[i],.08)/5);
+    const rm=R*(Math.max(mgrLevels[i],.08)/5);
+    const xe=cx+re*Math.cos(ea),ye=cy+re*Math.sin(ea);
+    const xm=cx+rm*Math.cos(ea),ym=cy+rm*Math.sin(ea);
+    ctx.beginPath(); ctx.moveTo(xe,ye); ctx.lineTo(xm,ym);
+    ctx.strokeStyle=diff>=2?'#E24B4A':'#BA7517';
+    ctx.lineWidth=diff>=2?2.5:1.5; ctx.stroke();
+    const mx=(xe+xm)/2,my=(ye+ym)/2;
+    ctx.beginPath(); ctx.arc(mx,my,diff>=2?5:3.5,0,Math.PI*2);
+    ctx.fillStyle=diff>=2?'#E24B4A':'#BA7517'; ctx.fill();
+  }
+
+  ctx.beginPath(); ctx.arc(cx,cy,2.5,0,Math.PI*2); ctx.fillStyle='rgba(180,178,169,.6)'; ctx.fill();
+}
+
+function renderGapTable(){
+  const body=document.getElementById('gapBody');
+  body.innerHTML='';
+  const empLevels=empData.map(d=>d.level||0);
+  const mgrLevels=mgrData.map(d=>d.level||0);
+
+  DIMS.forEach((d,i)=>{
+    const el=empLevels[i], ml=mgrLevels[i];
+    const diff=ml-el;
+    const absDiff=Math.abs(diff);
+    const ms=mgrData[i];
+    const tr=document.createElement('tr');
+
+    let statusHtml='';
+    if(el===0||ml===0) statusHtml='<span class="pill" style="background:#F1EFE8;color:#444441;border-color:#B4B2A9;">Incomplete</span>';
+    else if(absDiff===0) statusHtml='<span class="pill agree-pill">Agreed</span>';
+    else if(absDiff===1) statusHtml='<span class="pill close-pill">1 level gap</span>';
+    else statusHtml='<span class="pill gap-pill">'+absDiff+' level gap</span>';
+
+    const diffText=diff===0?'—':(diff>0?'+'+diff+' (mgr higher)':diff+' (emp higher)');
+    const diffColor=absDiff>=2?'#E24B4A':absDiff===1?'#BA7517':'#27500A';
+
+    const flags=[];
+    if(ms.flagDiscuss) flags.push('<span class="pill flag-pill">Discussion</span>');
+    if(ms.flagGap)     flags.push('<span class="pill crit-pill">Critical gap</span>');
+
+    tr.innerHTML=`
+      <td style="font-weight:500;">${d}</td>
+      <td>${el>0?`<span class="pill" style="background:${LM[el-1].bg};color:${LM[el-1].text};border-color:${LM[el-1].dot}">${LM[el-1].label}</span>`:'<span style="color:var(--hint);font-size:10px;">—</span>'}</td>
+      <td>${ml>0?`<span class="pill" style="background:${LM[ml-1].bg};color:${LM[ml-1].text};border-color:${LM[ml-1].dot}">${LM[ml-1].label}</span>`:'<span style="color:var(--hint);font-size:10px;">—</span>'}</td>
+      <td style="font-weight:600;color:${diffColor};font-size:11px;">${diffText}</td>
+      <td>${statusHtml}</td>
+      <td>${flags.join(' ')||'<span style="color:var(--hint);font-size:10px;">—</span>'}</td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+function renderAgreedGrid(){
+  const grid=document.getElementById('agreedGrid');
+  grid.innerHTML='';
+  DIMS.forEach((d,i)=>{
+    const div=document.createElement('div');
+    div.className='agreed-dim'+(activeAgreed===i?' selected':'');
+    div.onclick=()=>{ activeAgreed=activeAgreed===i?null:i; renderAgreedGrid(); };
+    const agreed=discData.agreed[i];
+    const shortName=d.split(' ').slice(0,2).join(' ');
+    const agreedBadge=agreed>0?`<div style="margin-top:3px;"><span class="pill" style="background:${LM[agreed-1].bg};color:${LM[agreed-1].text};border-color:${LM[agreed-1].dot};font-size:8px;">${LM[agreed-1].label}</span></div>`:'';
+    let btns='';
+    if(activeAgreed===i){
+      btns='<div class="ad-btns">'+LM.map((lm,li)=>{
+        const isSel=agreed===li+1;
+        return `<button class="ad-btn${isSel?' sel':''}" style="${isSel?`background:${lm.bg};color:${lm.text};border-color:${lm.dot}`:''}" onclick="event.stopPropagation();setAgreed(${i},${li+1})">${lm.label}</button>`;
+      }).join('')+'<button class="ad-btn" onclick="event.stopPropagation();setAgreed('+i+',0)" style="color:#9c9a92;">Clear</button></div>';
+    }
+    div.innerHTML=`<div class="ad-name">${shortName}</div>${agreedBadge}${btns}`;
+    grid.appendChild(div);
+  });
+  drawOverlay();
+}
+
+function setAgreed(dimIdx, level){
+  discData.agreed[dimIdx]=level;
+  saveDisc();
+  renderAgreedGrid();
+  renderGapTable();
+  const doneCount=discData.agreed.filter(l=>l>0).length;
+  if(doneCount===DIMS.length){
+    document.getElementById('statusBadge').textContent='Agreed ratings set';
+    document.getElementById('statusBadge').style.cssText='background:#EAF3DE;color:#27500A;border-color:#97C459;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;border-width:0.5px;border-style:solid;';
+  }
+}
+
+function renderNotes(){
+  const empEl=document.getElementById('empNotes');
+  const mgrEl=document.getElementById('mgrNotes');
+  empEl.innerHTML=''; mgrEl.innerHTML='';
+  DIMS.forEach((d,i)=>{
+    const ed=empData[i]; const md=mgrData[i];
+    if(ed.evidence&&ed.evidence.trim()){
+      empEl.innerHTML+=`<div class="notes-item"><strong>${d.split(' ')[0]}:</strong> ${ed.evidence}</div>`;
+    }
+    if(md.notes&&md.notes.trim()){
+      mgrEl.innerHTML+=`<div class="notes-item"><strong>${d.split(' ')[0]}:</strong> ${md.notes}</div>`;
+    }
+  });
+  if(!empEl.innerHTML) empEl.innerHTML='<div class="notes-item" style="color:var(--hint);">No evidence notes added.</div>';
+  if(!mgrEl.innerHTML) mgrEl.innerHTML='<div class="notes-item" style="color:var(--hint);">No observation notes added.</div>';
+}
+
+function saveDisc(){
+  try{ localStorage.setItem(DISC_KEY,JSON.stringify(discData)); }catch(e){}
+}
+
+function saveAll(){
+  discData.notes=document.getElementById('discussNotes').value;
+  saveDisc();
+  const t=document.getElementById('toast');
+  t.textContent='Discussion notes saved';
+  t.style.display='block';
+  t.style.background='#EAF3DE'; t.style.color='#27500A'; t.style.border='0.5px solid #97C459';
+  clearTimeout(saveAll._t);
+  saveAll._t=setTimeout(()=>t.style.display='none',2000);
+}
+
+loadAll();
+</script>
+</body>
+</html>
