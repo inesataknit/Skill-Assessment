@@ -67,7 +67,7 @@ textarea::placeholder { color:var(--hint); }
 <div class="layout">
   <div class="web-wrap">
     <div class="web-top">
-      <span class="hint">Blue label = open skill tree &nbsp;·&nbsp; Click axis = set level</span>
+      <span class="hint">Go to Frame 1a to read the skill tree, then click an axis to set your level</span>
       <button class="reset-btn" onclick="resetAll()">Reset all</button>
     </div>
     <canvas id="c" height="320"></canvas>
@@ -86,7 +86,7 @@ textarea::placeholder { color:var(--hint); }
       <div class="steps">
         <div class="step-item" id="s1">
           <div class="step-num">1</div>
-          <div class="step-text">Click a blue label to open its skill tree. Work through the cards and mark <strong>Done</strong> the ones you can demonstrate.</div>
+          <div class="step-text">Go to Frame 1a in Miro. Work through the node cards for each dimension and mark <strong>Done</strong> the ones you can demonstrate.</div>
         </div>
         <div class="step-item" id="s2">
           <div class="step-num">2</div>
@@ -129,13 +129,13 @@ textarea::placeholder { color:var(--hint); }
 <script>
 const STORAGE_KEY='competence_softskill_v1';
 const DIMS=[
-  {name:'Communication & Facilitation',          link:'https://miro.com/app/board/uXjVGxOLOa4=/?moveToWidget=3458764663800759491&cot=14'},
-  {name:'Collaboration & Conflict Management',   link:''},
-  {name:'Problem Solving & Decision Making',     link:''},
-  {name:'Self-Leadership & Adaptability',        link:''},
-  {name:'Stakeholder & Customer Focus',          link:''},
-  {name:'Mentoring & Leadership',                link:''},
-  {name:'Innovation Mindset & Creative Thinking',link:''},
+  {name:'Communication & Facilitation'},
+  {name:'Collaboration & Conflict Management'},
+  {name:'Problem Solving & Decision Making'},
+  {name:'Self-Leadership & Adaptability'},
+  {name:'Stakeholder & Customer Focus'},
+  {name:'Mentoring & Leadership'},
+  {name:'Innovation Mindset & Creative Thinking'},
 ];
 const LM=[
   {bg:'#F1EFE8',text:'#444441',dot:'#888780',label:'Novice'},
@@ -208,7 +208,7 @@ function draw(){
     const lr=R*1.22;const lx=cx+lr*Math.cos(a),ly=cy+lr*Math.sin(a);
     const words=DIMS[i].name.split(' ');const mid=Math.ceil(words.length/2);
     const l1=words.slice(0,mid).join(' '),l2=words.slice(mid).join(' ');
-    const hasLink=!!DIMS[i].link;
+    const hasLink=false;
     ctx.font=`${hasLink?'600':'500'} ${Math.max(9,W*.026)}px system-ui`;
     if(hasLink){
       const tw=Math.max(ctx.measureText(l1).width,l2?ctx.measureText(l2).width:0)+12;
@@ -257,9 +257,7 @@ function onClick(e){
   if(best===-1)return;
   const lr2=R*1.22;
   const lx2=cx+lr2*Math.cos(ang(best)),ly2=cy+lr2*Math.sin(ang(best));
-  if(Math.hypot(mx-lx2,my-ly2)<50&&DIMS[best].link){
-    window.open(DIMS[best].link,'_blank');return;
-  }
+
   const a=ang(best),ax=Math.cos(a),ay=Math.sin(a);
   const proj=Math.max(0,Math.min(R,(mx-cx)*ax+(my-cy)*ay));
   const newLevel=Math.max(1,Math.min(5,Math.round(proj/R*5)||1));
@@ -285,7 +283,7 @@ function renderSide(){
     const s=state[i];const lm=s.level?LM[s.level-1]:null;
     const el=document.createElement('div');
     el.className='dim-item'+(active===i?' active':'');
-    const linkBtn=d.link?`<span class="dlink" onclick="event.stopPropagation();window.open('${d.link}','_blank')">tree →</span>`:'';
+    const linkBtn='';
     const lvlBadge=lm?`<span class="dlvl" style="background:${lm.bg};color:${lm.text};border-color:${lm.dot}">${lm.label}</span>`:'<span class="dlvl" style="color:#aaa">—</span>';
     el.innerHTML=`<div class="ddot" style="background:${lm?lm.dot:'#ccc'}"></div><span class="dname">${d.name}</span>${linkBtn}${lvlBadge}`;
     el.onclick=()=>{active=i;if(!state[i].level)state[i].level=1;save();renderSide();draw();};
