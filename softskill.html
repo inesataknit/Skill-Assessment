@@ -192,8 +192,7 @@ function draw(){
   const dpr=window.devicePixelRatio||1;
   canvas.width=W*dpr;canvas.height=W*dpr;
   ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
-  const rings=['rgba(29,158,117,.38)','rgba(55,138,221,.25)','rgba(55,138,221,.38)','rgba(21,101,192,.45)'];
-  for(let l=4;l>=1;l--){
+const rings=['rgba(29,158,117,.38)','rgba(55,138,221,.25)','rgba(55,138,221,.38)','rgba(200,220,235,0.5)'];  for(let l=4;l>=1;l--){
     const r=R*(l/5);ctx.beginPath();
     for(let i=0;i<DIMS.length;i++){const a=ang(i);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
     ctx.closePath();ctx.fillStyle=rings[l-1];ctx.fill();
